@@ -12,7 +12,7 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:
       - mariadb_data:/var/lib/mysql
-        #        - ./requirements/mariadb/conf/my.cnf:/etc/mysql/my.cnf:ro
+      - ./requirements/mariadb/conf/my.cnf:/etc/mysql/my.cnf:ro
         #      - ./requirements/mariadb/tools:/docker-entrypoint-initdb.d:ro
     networks:
       - inception_network
@@ -20,8 +20,8 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s # time between each health check
       retries: 5 # number of retries before considered unhealthy
-      start_period: 5s # initial grace period after container startup Docker will not check health
-      timeout: 10s # time to wait fo a response from health check command
+      start_period: 20s # initial grace period after container startup Docker will not check health
+      timeout: 20s # time to wait fo a response from health check command
 
   wordpress:
     build: ./requirements/wordpress
