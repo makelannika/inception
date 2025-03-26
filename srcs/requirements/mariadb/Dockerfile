@@ -19,7 +19,6 @@ COPY	/conf/my.cnf /etc/mysql/my.cnf
 #	once the database has been initialized the script will not run again unless database is removed or reset
 COPY	/tools/create_users.sql /docker-entrypoint-initdb.d/
 RUN	chown mysql:mysql /docker-entrypoint-initdb.d/create_users.sql && chmod 644 /docker-entrypoint-initdb.d/create_users.sql
-#RUN	chown mysql:mysql /docker-entrypoint-initdb.d/create_users.sql
 
 EXPOSE	3306
 
