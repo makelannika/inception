@@ -31,9 +31,8 @@ RUN	curl -o wordpress.tar.gz https://wordpress.org/latest.tar.gz \
 	&& rm wordpress.tar.gz
 
 #	www-data is a system user commonly used by web servers
-# 	this gives NGINX access to the wordpress files that
-#	are located in /var/www/html
-#RUN	chown -R www-data:www-data /var/www/html
+# 	this gives NGINX access to the wordpress files as they
+#	are copied into /var/www/html
 COPY	--chown=www-data:www-data . /var/www/html
 
 #	technically not needed since Docker’s internal networking allows NGINX
