@@ -7,10 +7,13 @@ RUN	apt-get update && apt-get install -y \
 	&& rm -rf /var/lib/apt/lists/*
 
 #	ensures ownership of relevant files
-RUN	chown -R mysql:mysql /var/lib/mysql /etc/mysql
+RUN	mkdir -p /var/lib/mysql && chown -R mysql:mysql /var/lib/mysql
+
+#	creates socket directory and sets permissions
+RUN	mkdir -p /var/run/mysqld && chown -R mysql:mysql /var/run/mysqld
 
 #	copies configuration file into the container
-COPY	./requirements/mariadb/conf/my.cnf /etc/mysql/my.cnf
+COPY	/conf/my.cnf /etc/mysql/my.cnf
 
 EXPOSE	3306
 
