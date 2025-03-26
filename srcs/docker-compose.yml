@@ -12,9 +12,16 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:
       - mariadb_data:/var/lib/mysql
-      - ./requirements/mariadb/tools:/docker-entrypoint-initdb.d:ro
+        #        - ./requirements/mariadb/conf/my.cnf:/etc/mysql/my.cnf:ro
+        #      - ./requirements/mariadb/tools:/docker-entrypoint-initdb.d:ro
     networks:
       - inception_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s # time between each health check
+      retries: 5 # number of retries before considered unhealthy
+      start_period: 5s # initial grace period after container startup Docker will not check health
+      timeout: 10s # time to wait fo a response from health check command
 
   wordpress:
     build: ./requirements/wordpress
@@ -31,7 +38,8 @@ services:
     networks:
       - inception_network
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
 
   nginx:
     build: ./requirements/nginx
@@ -41,9 +49,10 @@ services:
       - DOMAIN_NAME=${DOMAIN_NAME}
       - CERTS_=${CERTS_}
     volumes:
-      - ./requirements/wordpress:/var/www/html:ro
-      - ./requirements/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
-        #      - ${CERTS_}:/etc/nginx/ssl:ro 
+      #      - ./requirements/wordpress:/var/www/html:ro
+      #      - ./requirements/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      #      - ${CERTS_}:/etc/nginx/ssl:ro
+      - wordpress_data:/var/www/html
     networks:
       - inception_network
     depends_on:
