@@ -35,6 +35,9 @@ RUN	curl -o wordpress.tar.gz https://wordpress.org/latest.tar.gz \
 #	are copied into /var/www/html
 COPY	--chown=www-data:www-data . /var/www/html
 
+COPY	/conf/wp-config.php /var/www/html/wp-config.php
+RUN	chown www-data:www-data /var/www/html/wp-config.php
+
 #	technically not needed since Docker’s internal networking allows NGINX
 #	to communicate with WordPress without explicitly exposing the port
 #	but good practice - informs Docker about intended usage
