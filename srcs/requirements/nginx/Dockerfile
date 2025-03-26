@@ -1,5 +1,8 @@
 FROM	debian:11.11
 
+#	tells apt-get not to prompt for user input during package installation
+ENV	DEBIAN_FRONTEND=noninteractive
+
 #	installs NGINX to serve WordPress,
 #	openSSL toolkit for generating self-signed SSL certificates for HTTPS
 #	and gettext-base package for envsubst command

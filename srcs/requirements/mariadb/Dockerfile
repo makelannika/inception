@@ -1,5 +1,8 @@
 FROM	debian:11.11
 
+#	tells apt-get not to prompt for user input during package installation
+ENV	DEBIAN_FRONTEND=noninteractive
+
 #	installs server and client for MariaDB
 RUN	apt-get update && apt-get install -y \
 	mariadb-server \
