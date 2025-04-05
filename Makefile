@@ -41,6 +41,9 @@ clean: down
 	@docker volume prune -f
 	@echo "✅ Cleaned up all Docker resources"
 
+logs:
+	docker-compose -f srcs/docker-compose.yml logs -f
+
 fclean: clean
 	@rm -rf $(VOLUMES)/mariadb $(VOLUMES)/wordpress
 	@echo "✅ Full cleanup done"
