@@ -5,7 +5,7 @@ RUN apk update && apk add --no-cache \
     php82 \
     php82-fpm \
     php82-mysqli \
-    php82-json \
+    php82-ctype \
     php82-curl \
     php82-dom \
     php82-exif \
@@ -14,10 +14,15 @@ RUN apk update && apk add --no-cache \
     php82-openssl \
     php82-xml \
     php82-zip \
-    php82-phar \
     php82-gd \
+    php82-phar \
+    php82-json \
+    php82-tokenizer \
+    php82-simplexml \
     curl \
-    unzip
+    wget \
+    mariadb-client \
+    netcat-openbsd
 
 # Create directories
 RUN mkdir -p /var/www/html
