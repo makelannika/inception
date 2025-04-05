@@ -16,10 +16,6 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 # Copy NGINX configuration file
 COPY conf/nginx.conf /etc/nginx/nginx.conf.template
 
-# Copy SSL certificates
-COPY ssl/ /etc/nginx/ssl/
-RUN chmod 600 /etc/nginx/ssl/*
-
 # Create directories for NGINX
 RUN mkdir -p /var/www/html /run/nginx
 
