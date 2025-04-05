@@ -12,6 +12,10 @@ build:
 	@docker-compose -f $(DOCKER_COMPOSE) build
 	@echo "✅ Docker images built"
 
+up:
+	@docker-compose -f $(DOCKER_COMPOSE) up -d
+	@echo "✅ Containers started"
+
 mariadb:
 	@docker-compose -f $(DOCKER_COMPOSE) up -d --build mariadb
 	@echo "✅ MariaDB built"
@@ -23,10 +27,6 @@ wordpress:
 nginx:
 	@docker-compose -f $(DOCKER_COMPOSE) up -d --build nginx
 	@echo "✅ NGINX built"
-
-up:
-	@docker-compose -f $(DOCKER_COMPOSE) up -d
-	@echo "✅ Containers started"
 
 stop:
 	@docker-compose -f $(DOCKER_COMPOSE) stop

@@ -13,15 +13,19 @@ RUN	apt-get update && apt-get install -y \
 	&& rm -rf /var/lib/apt/lists/*
 
 #	copies files from local build context into the container
-COPY	conf/nginx.conf /etc/nginx/nginx.conf
+COPY	/conf/nginx.conf /etc/nginx/nginx.conf
 
 #	copy pre-generated SSL certificates
-COPY	ssl/ /etc/nginx/ssl/
+COPY	./ssl/ /etc/nginx/ssl/
+RUN	chmod 777 /etc/nginx/ssl/
+
+#COPY	/tools/docker-entrypoint.sh /usr/local/bin/
+#RUN	chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE	443
 
 #	substitutes domain name in configuration file
 #	runs NGINX - in the foreground with -g daemon off
 #	ensuring docker will be able to stop container properly
-CMD	envsubst '$DOMAIN_NAME' < /etc/nginx/nginx.conf > /etc/nginx/nginx.conf && nginx -g 'daemon off;'
-
+#CMD	envsubst '$DOMAIN_NAME' < /etc/nginx/nginx.conf > /etc/nginx/nginx.conf && nginx -g 'daemon off;'
+CMD	["nginx", "-g", "daemon off;"]

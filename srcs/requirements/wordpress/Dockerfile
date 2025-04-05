@@ -16,6 +16,8 @@ RUN	apt-get update && apt-get install -y \
 	curl \
 	&& rm -rf /var/lib/apt/lists/*
 
+RUN	mkdir -p /run/php && chown -R www-data:www-data /run/php
+
 #	creates /var/www/html directory
 RUN	mkdir -p /var/www/html
 
