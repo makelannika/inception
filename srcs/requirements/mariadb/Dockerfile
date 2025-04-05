@@ -15,11 +15,6 @@ RUN mkdir -p /var/lib/mysql && \
 # Copy configuration file
 COPY conf/my.cnf /etc/my.cnf
 
-# Copy initialization script
-COPY tools/create_users.sql /docker-entrypoint-initdb.d/
-RUN chown mysql:mysql /docker-entrypoint-initdb.d/create_users.sql && \
-    chmod 644 /docker-entrypoint-initdb.d/create_users.sql
-
 # Copy entrypoint script
 COPY tools/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
