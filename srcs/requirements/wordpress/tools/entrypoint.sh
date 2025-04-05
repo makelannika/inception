@@ -9,12 +9,8 @@ done
 echo "MariaDB is ready!"
 
 # Check if WordPress is already installed
-if [ ! -f /var/www/html/wp-config.php ]; then
+if ! wp core is-installed --path=/var/www/html --allow-root; then
     echo "Setting up WordPress..."
-    
-    # Copy the wp-config.php file
-    cp /tmp/wp-config.php /var/www/html/wp-config.php
-    chown www-data:www-data /var/www/html/wp-config.php
     
     # Install WordPress if not already installed
     wp core install --path=/var/www/html \
@@ -27,7 +23,7 @@ if [ ! -f /var/www/html/wp-config.php ]; then
         --allow-root
         
     # Create a second user (editor)
-    wp user create another-user user@example.com \
+    wp user create user user@example.com \
         --role=editor \
         --user_pass=pswd321 \
         --path=/var/www/html \
