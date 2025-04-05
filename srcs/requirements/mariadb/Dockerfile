@@ -1,26 +1,22 @@
 FROM alpine:3.20.6
 
-# Install MariaDB
 RUN apk update && apk add --no-cache \
     mariadb \
     mariadb-client
 
-# Create directories and set permissions
-RUN mkdir -p /var/lib/mysql && \
-    chown -R mysql:mysql /var/lib/mysql && \
-    mkdir -p /var/run/mysqld && \
-    chown -R mysql:mysql /var/run/mysqld && \
-    mkdir -p /docker-entrypoint-initdb.d
+# Create necessary directories with proper permissions
+RUN mkdir -p /run/mysqld && \
+    chown -R mysql:mysql /run/mysqld && \
+    mkdir -p /var/lib/mysql && \
+    chown -R mysql:mysql /var/lib/mysql
 
-# Copy configuration file
-COPY conf/my.cnf /etc/my.cnf
+# Copy configuration
+COPY ./conf/my.cnf /etc/my.cnf
+COPY ./tools/setup.sh /setup.sh
 
-# Copy entrypoint script
-COPY tools/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# Make the script executable
+RUN chmod +x /setup.sh
 
-# Expose port for MariaDB
 EXPOSE 3306
 
-# Start MariaDB
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/setup.sh"]
