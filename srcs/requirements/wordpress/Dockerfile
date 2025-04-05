@@ -32,8 +32,8 @@ RUN mkdir -p /run/php
 RUN adduser -u 82 -D -S -G www-data www-data
 RUN chown -R www-data:www-data /var/www/html /run/php
 
-# Configure PHP-FPM
-COPY /conf/php-fpm.conf /etc/php82/php-fpm.conf
+# Configure PHP-FPM - Fix path and ensure clean file
+COPY conf/php-fpm.conf /etc/php82/php-fpm.conf
 RUN ln -s /usr/sbin/php-fpm82 /usr/sbin/php-fpm
 
 # Set working directory
@@ -45,8 +45,7 @@ RUN curl -o wordpress.tar.gz https://wordpress.org/latest.tar.gz \
     && rm wordpress.tar.gz
 
 # Copy WordPress configuration
-COPY --chown=www-data:www-data . /var/www/html
-COPY /conf/wp-config.php /var/www/html/wp-config.php
+COPY conf/wp-config.php /var/www/html/wp-config.php
 RUN chown www-data:www-data /var/www/html/wp-config.php
 
 # Expose port for PHP-FPM

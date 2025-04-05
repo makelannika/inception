@@ -28,4 +28,4 @@ RUN chmod +x /entrypoint.sh
 EXPOSE 3306
 
 # Start MariaDB
-CMD ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
