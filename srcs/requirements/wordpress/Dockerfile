@@ -26,8 +26,8 @@ RUN apk update && apk add --no-cache \
 
 # Install WP-CLI
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
-&& chmod +x wp-cli.phar \
-&& mv wp-cli.phar /usr/local/bin/wp
+    && chmod +x wp-cli.phar \
+    && mv wp-cli.phar /usr/local/bin/wp
 
 # Create directories
 RUN mkdir -p /var/www/html
@@ -37,7 +37,7 @@ RUN mkdir -p /run/php
 RUN adduser -u 82 -D -S -G www-data www-data
 RUN chown -R www-data:www-data /var/www/html /run/php
 
-# Configure PHP-FPM - Fix path and ensure clean file
+# Configure PHP-FPM
 COPY conf/php-fpm.conf /etc/php82/php-fpm.conf
 RUN ln -s /usr/sbin/php-fpm82 /usr/sbin/php-fpm
 
@@ -47,17 +47,19 @@ WORKDIR /var/www/html
 # Download and extract WordPress
 RUN curl -o wordpress.tar.gz https://wordpress.org/latest.tar.gz \
     && tar -xzf wordpress.tar.gz --strip-components=1 \
-    && rm wordpress.tar.gz
+    && rm wordpress.tar.gz \
+    && chown -R www-data:www-data /var/www/html
 
-# Copy WordPress configuration
+# Copy WordPress configuration directly to the proper location
 COPY conf/wp-config.php /var/www/html/wp-config.php
 RUN chown www-data:www-data /var/www/html/wp-config.php
 
+# Copy entrypoint script
 COPY tools/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Expose port for PHP-FPM
 EXPOSE 9000
 
-# Start PHP-FPM
-CMD ["/entrypoint.sh"]
+# Start PHP-FPM via entrypoint script
+ENTRYPOINT ["/entrypoint.sh"]

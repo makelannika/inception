@@ -23,4 +23,4 @@ RUN mkdir -p /var/www/html /run/nginx
 EXPOSE 443
 
 # Start NGINX with environment variable substitution
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]
