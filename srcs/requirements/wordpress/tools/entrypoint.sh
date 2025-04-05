@@ -17,13 +17,6 @@ while ! mysql -h $WORDPRESS_DB_HOST -u $WORDPRESS_DB_USER -p$WORDPRESS_DB_PASSWO
 done
 echo "MariaDB is ready!"
 
-CREATE DATABASE IF NOT EXISTS wordpress;
-
--- Create WordPress user with proper permissions
-CREATE USER IF NOT EXISTS 'user1'@'%' IDENTIFIED BY 'user1pswd';
-GRANT ALL PRIVILEGES ON wordpress.* TO 'user1'@'%';
-FLUSH PRIVILEGES;
-
 -- Switch to WordPress database
 USE wordpress;
 
