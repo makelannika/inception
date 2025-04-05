@@ -20,6 +20,9 @@ COPY /tools/create_users.sql /docker-entrypoint-initdb.d/
 RUN chown mysql:mysql /docker-entrypoint-initdb.d/create_users.sql && \
     chmod 644 /docker-entrypoint-initdb.d/create_users.sql
 
+COPY /tools/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Expose port for MariaDB
 EXPOSE 3306
 
