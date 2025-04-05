@@ -6,15 +6,17 @@ RUN apk update && apk add --no-cache \
     openssl \
     gettext
 
-# Create SSL directory and ensure it exists
+# Create SSL directory
 RUN mkdir -p /etc/nginx/ssl
+
+# Generate SSL certificates
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout /etc/nginx/ssl/nginx.key \
-    -out /etc/nginx/ssl/nginx.crt \
-    -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=AMAKELA.42.fr" 
+    -keyout /etc/nginx/ssl/privkey.key \
+    -out /etc/nginx/ssl/certificate.crt \
+    -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=amakela.42.fr"
 
 # Copy NGINX configuration file
-COPY conf/nginx.conf /etc/nginx/nginx.conf.template
+COPY conf/nginx.conf /etc/nginx/nginx.conf
 
 # Create directories for NGINX
 RUN mkdir -p /var/www/html /run/nginx
@@ -22,5 +24,5 @@ RUN mkdir -p /var/www/html /run/nginx
 # Expose port for HTTPS
 EXPOSE 443
 
-# Start NGINX with environment variable substitution
+# Start NGINX
 CMD ["nginx", "-g", "daemon off;"]

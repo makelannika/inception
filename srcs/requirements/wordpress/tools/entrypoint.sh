@@ -17,9 +17,6 @@ while ! mysql -h $WORDPRESS_DB_HOST -u $WORDPRESS_DB_USER -p$WORDPRESS_DB_PASSWO
 done
 echo "MariaDB is ready!"
 
--- Switch to WordPress database
-USE wordpress;
-
 # Change to the proper directory
 cd /var/www/html
 
