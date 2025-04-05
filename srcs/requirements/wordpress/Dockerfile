@@ -29,6 +29,9 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
     && chmod +x wp-cli.phar \
     && mv wp-cli.phar /usr/local/bin/wp
 
+# Create a symlink from php82 to php for wp-cli
+RUN ln -sf /usr/bin/php82 /usr/bin/php
+
 # Create directories
 RUN mkdir -p /var/www/html
 RUN mkdir -p /run/php
