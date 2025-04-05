@@ -20,15 +20,6 @@ COPY /tools/create_users.sql /docker-entrypoint-initdb.d/
 RUN chown mysql:mysql /docker-entrypoint-initdb.d/create_users.sql && \
     chmod 644 /docker-entrypoint-initdb.d/create_users.sql
 
-# Create an initialization script
-RUN echo '#!/bin/sh \n\
-if [ ! -d "/var/lib/mysql/mysql" ]; then \n\
-    mysql_install_db --user=mysql --datadir=/var/lib/mysql \n\
-    mysqld --user=mysql --bootstrap < /docker-entrypoint-initdb.d/create_users.sql \n\
-fi \n\
-exec mysqld --user=mysql' > /entrypoint.sh && \
-    chmod +x /entrypoint.sh
-
 # Expose port for MariaDB
 EXPOSE 3306
 
