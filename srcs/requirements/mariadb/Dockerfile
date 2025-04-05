@@ -12,11 +12,11 @@ RUN mkdir -p /run/mysqld && \
 
 # Copy configuration
 COPY ./conf/my.cnf /etc/my.cnf
-COPY ./tools/setup.sh /setup.sh
+COPY ./tools/entrypoint.sh /entrypoint.sh
 
 # Make the script executable
-RUN chmod +x /setup.sh
+RUN chmod +x /entrypoint.sh
 
 EXPOSE 3306
 
-ENTRYPOINT ["/setup.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
