@@ -19,12 +19,8 @@ RUN chmod 600 /etc/nginx/ssl/*
 # Create directories for NGINX
 RUN mkdir -p /var/www/html /run/nginx
 
-# Copy entrypoint script
-COPY tools/docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-
 # Expose port for HTTPS
 EXPOSE 443
 
 # Start NGINX with environment variable substitution
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
