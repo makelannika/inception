@@ -12,6 +12,10 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "Database initialization complete."
 fi
 
+# Fix permissions
+chown -R mysql:mysql /var/lib/mysql
+chown -R mysql:mysql /run/mysqld
+
 # Start MariaDB server
 echo "Starting MariaDB server..."
 exec mysqld --user=mysql
