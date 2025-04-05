@@ -24,6 +24,11 @@ RUN apk update && apk add --no-cache \
     mariadb-client \
     netcat-openbsd
 
+# Install WP-CLI
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+&& chmod +x wp-cli.phar \
+&& mv wp-cli.phar /usr/local/bin/wp
+
 # Create directories
 RUN mkdir -p /var/www/html
 RUN mkdir -p /run/php
@@ -47,6 +52,9 @@ RUN curl -o wordpress.tar.gz https://wordpress.org/latest.tar.gz \
 # Copy WordPress configuration
 COPY conf/wp-config.php /var/www/html/wp-config.php
 RUN chown www-data:www-data /var/www/html/wp-config.php
+
+COPY tools/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Expose port for PHP-FPM
 EXPOSE 9000
