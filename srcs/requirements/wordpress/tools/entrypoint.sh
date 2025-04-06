@@ -29,15 +29,6 @@ define('DB_HOST', '${WORDPRESS_DB_HOST}:3306');
 define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', '');
 
-define('AUTH_KEY',         'unique_value_1');
-define('SECURE_AUTH_KEY',  'unique_value_2');
-define('LOGGED_IN_KEY',    'unique_value_3');
-define('NONCE_KEY',        'unique_value_4');
-define('AUTH_SALT',        'unique_value_5');
-define('SECURE_AUTH_SALT', 'unique_value_6');
-define('LOGGED_IN_SALT',   'unique_value_7');
-define('NONCE_SALT',       'unique_value_8');
-
 \$table_prefix = 'wp_';
 define('WP_DEBUG', true);
 if ( !defined('ABSPATH') )

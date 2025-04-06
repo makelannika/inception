@@ -16,11 +16,16 @@ RUN apk update && apk add --no-cache \
     php82-zip \
     php82-gd \
     curl \
-    mariadb-client
+    mariadb-client \
+    netcat-openbsd
 
 # Create necessary directories
 RUN mkdir -p /var/www/html /run/php
 RUN ln -sf /usr/bin/php82 /usr/bin/php
+
+# Create www-data user and group with specific IDs
+RUN addgroup -g 82 -S www-data && \
+    adduser -u 82 -S -D -G www-data www-data
 
 # Configure PHP-FPM
 COPY conf/php-fpm.conf /etc/php82/php-fpm.conf
