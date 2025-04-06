@@ -36,16 +36,15 @@ down:
 	@docker-compose -f $(DOCKER_COMPOSE) down
 	@echo "✅ Containers stopped and removed"
 
+logs:
+	@docker-compose -f $(DOCKER_COMPOSE) logs -f
+
 clean: down
 	@docker system prune -af
-	@docker volume prune -f
-	@echo "✅ Cleaned up all Docker resources"
-
-logs:
-	docker-compose -f srcs/docker-compose.yml logs -f
+	@echo "✅ System pruned"
 
 fclean: clean
-	@rm -rf $(VOLUMES)/mariadb $(VOLUMES)/wordpress
+	@rm -rf $(VOLUMES)/mariadb/ $(VOLUMES)/wordpress/
 	@echo "✅ Full cleanup done"
 
 re: fclean all
