@@ -18,7 +18,7 @@ if [ ! -f "/var/www/html/index.php" ]; then
     tar -xzf wordpress.tar.gz --strip-components=1
     rm wordpress.tar.gz
     
-    # Create wp-config.php with correct DB_HOST value
+    # Create wp-config.php
     echo "Creating wp-config.php..."
     cat > wp-config.php << EOF
 <?php
@@ -30,12 +30,37 @@ define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', '');
 
 \$table_prefix = 'wp_';
-define('WP_DEBUG', true);
+define('WP_DEBUG', false);
 if ( !defined('ABSPATH') )
     define('ABSPATH', dirname(__FILE__) . '/');
 require_once(ABSPATH . 'wp-settings.php');
 EOF
     echo "WordPress files prepared."
+fi
+
+# Check if WordPress is already installed
+if ! wp core is-installed --allow-root; then
+    echo "Installing WordPress..."
+    
+    # Install WordPress
+    wp core install \
+        --allow-root \
+        --url=https://${DOMAIN_NAME} \
+        --title="WordPress Site" \
+        --admin_user=amakela \
+        --admin_password=amakela123 \
+        --admin_email=amakela@example.com \
+        --skip-email
+    
+    # Create a second non-admin user (requirement from the project)
+    wp user create editor editor@example.com \
+        --allow-root \
+        --role=editor \
+        --user_pass=editor123
+    
+    echo "WordPress installed successfully!"
+else
+    echo "WordPress already installed."
 fi
 
 # Fix permissions
