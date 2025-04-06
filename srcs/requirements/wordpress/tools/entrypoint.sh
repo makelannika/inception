@@ -1,60 +1,55 @@
 #!/bin/sh
 
-# Install netcat if not already present
-if ! command -v nc &> /dev/null; then
-    apk add --no-cache netcat-openbsd
-fi
+echo "WordPress container starting..."
 
-# Wait for MariaDB
+# Wait for MariaDB to be ready
 echo "Waiting for MariaDB..."
 while ! nc -z ${WORDPRESS_DB_HOST} 3306; do
-    echo "MariaDB is unavailable - sleeping"
+    echo "Waiting for MariaDB..."
     sleep 3
 done
-echo "MariaDB is up - continuing"
-
-# Ensure the www-data user exists
-if ! id "www-data" &>/dev/null; then
-    adduser -u 82 -D -S -G www-data www-data
-fi
-
-# Wait a bit more to ensure MariaDB is fully initialized
-sleep 5
+echo "MariaDB is up! Waiting a bit more for initialization..."
+sleep 5  # Give MariaDB a bit more time to initialize fully
 
 # Download WordPress if not already present
-if [ ! -f "/var/www/html/wp-config.php" ]; then
-    echo "Setting up WordPress..."
-    
-    # Download WordPress core files
+if [ ! -f "/var/www/html/index.php" ]; then
+    echo "WordPress not found, downloading..."
     curl -o wordpress.tar.gz https://wordpress.org/latest.tar.gz
     tar -xzf wordpress.tar.gz --strip-components=1
     rm wordpress.tar.gz
     
-    # Create wp-config.php
+    # Create wp-config.php with correct DB_HOST value
+    echo "Creating wp-config.php..."
     cat > wp-config.php << EOF
 <?php
 define('DB_NAME', '${WORDPRESS_DB_NAME}');
 define('DB_USER', '${WORDPRESS_DB_USER}');
 define('DB_PASSWORD', '${WORDPRESS_DB_PASSWORD}');
-define('DB_HOST', '${WORDPRESS_DB_HOST}');
+define('DB_HOST', '${WORDPRESS_DB_HOST}:3306');
 define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', '');
 
+define('AUTH_KEY',         'unique_value_1');
+define('SECURE_AUTH_KEY',  'unique_value_2');
+define('LOGGED_IN_KEY',    'unique_value_3');
+define('NONCE_KEY',        'unique_value_4');
+define('AUTH_SALT',        'unique_value_5');
+define('SECURE_AUTH_SALT', 'unique_value_6');
+define('LOGGED_IN_SALT',   'unique_value_7');
+define('NONCE_SALT',       'unique_value_8');
+
 \$table_prefix = 'wp_';
-define('WP_DEBUG', false);
+define('WP_DEBUG', true);
 if ( !defined('ABSPATH') )
     define('ABSPATH', dirname(__FILE__) . '/');
 require_once(ABSPATH . 'wp-settings.php');
 EOF
-    
-    echo "WordPress setup complete! Access via HTTPS to complete installation."
-else
-    echo "WordPress is already set up."
+    echo "WordPress files prepared."
 fi
 
 # Fix permissions
+echo "Setting correct file permissions..."
 chown -R www-data:www-data /var/www/html
 
-# Start PHP-FPM
 echo "Starting PHP-FPM..."
 exec php-fpm -F
