@@ -15,17 +15,26 @@ RUN apk update && apk add --no-cache \
     php82-xml \
     php82-zip \
     php82-gd \
+    php82-phar \
+    php82-tokenizer \
+    php82-simplexml \
     curl \
     mariadb-client \
     netcat-openbsd
 
-# Create necessary directories
-RUN mkdir -p /var/www/html /run/php
+# Install WP-CLI
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+    && chmod +x wp-cli.phar \
+    && mv wp-cli.phar /usr/local/bin/wp
+
+# Create symlink for PHP
 RUN ln -sf /usr/bin/php82 /usr/bin/php
 
-# Check if www-data user/group exists and create only if needed
-RUN getent group www-data || addgroup -g 82 -S www-data
-RUN getent passwd www-data || adduser -u 82 -S -D -G www-data www-data
+# Create necessary directories
+RUN mkdir -p /var/www/html /run/php
+
+# Make sure we have the www-data user
+RUN adduser -u 82 -D -S -G www-data www-data || echo "User already exists"
 
 # Configure PHP-FPM
 COPY conf/php-fpm.conf /etc/php82/php-fpm.conf
