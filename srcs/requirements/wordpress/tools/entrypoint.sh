@@ -1,14 +1,31 @@
 #!/bin/sh
 
+# Install netcat if not already present
+if ! command -v nc &> /dev/null; then
+    apk add --no-cache netcat-openbsd
+fi
+
 # Wait for MariaDB
+echo "Waiting for MariaDB..."
 while ! nc -z ${WORDPRESS_DB_HOST} 3306; do
-    echo "Waiting for MariaDB..."
+    echo "MariaDB is unavailable - sleeping"
     sleep 3
 done
+echo "MariaDB is up - continuing"
+
+# Ensure the www-data user exists
+if ! id "www-data" &>/dev/null; then
+    adduser -u 82 -D -S -G www-data www-data
+fi
+
+# Wait a bit more to ensure MariaDB is fully initialized
+sleep 5
 
 # Download WordPress if not already present
 if [ ! -f "/var/www/html/wp-config.php" ]; then
-    # Download and extract WordPress
+    echo "Setting up WordPress..."
+    
+    # Download WordPress core files
     curl -o wordpress.tar.gz https://wordpress.org/latest.tar.gz
     tar -xzf wordpress.tar.gz --strip-components=1
     rm wordpress.tar.gz
@@ -23,29 +40,21 @@ define('DB_HOST', '${WORDPRESS_DB_HOST}');
 define('DB_CHARSET', 'utf8');
 define('DB_COLLATE', '');
 
-define('AUTH_KEY',         'unique phrase');
-define('SECURE_AUTH_KEY',  'unique phrase');
-define('LOGGED_IN_KEY',    'unique phrase');
-define('NONCE_KEY',        'unique phrase');
-define('AUTH_SALT',        'unique phrase');
-define('SECURE_AUTH_SALT', 'unique phrase');
-define('LOGGED_IN_SALT',   'unique phrase');
-define('NONCE_SALT',       'unique phrase');
-
 \$table_prefix = 'wp_';
 define('WP_DEBUG', false);
 if ( !defined('ABSPATH') )
     define('ABSPATH', dirname(__FILE__) . '/');
 require_once(ABSPATH . 'wp-settings.php');
 EOF
-
-    # Create users (this would normally be done via web setup)
-    # In a real implementation, you'd want to use wp-cli for this
-    echo "WordPress files prepared. Complete the setup via web interface."
+    
+    echo "WordPress setup complete! Access via HTTPS to complete installation."
+else
+    echo "WordPress is already set up."
 fi
 
 # Fix permissions
 chown -R www-data:www-data /var/www/html
 
 # Start PHP-FPM
+echo "Starting PHP-FPM..."
 exec php-fpm -F
