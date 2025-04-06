@@ -1,20 +1,15 @@
 FROM alpine:3.20.6
 
-RUN apk update && apk add --no-cache \
-    mariadb \
-    mariadb-client
+# Install MariaDB
+RUN apk update && apk add --no-cache mariadb mariadb-client
 
-# Create necessary directories with proper permissions
-RUN mkdir -p /run/mysqld && \
-    chown -R mysql:mysql /run/mysqld && \
-    mkdir -p /var/lib/mysql && \
-    chown -R mysql:mysql /var/lib/mysql
+# Setup directories and permissions
+RUN mkdir -p /run/mysqld /var/lib/mysql && \
+    chown -R mysql:mysql /run/mysqld /var/lib/mysql
 
 # Copy configuration
-COPY ./conf/my.cnf /etc/my.cnf
-COPY ./tools/entrypoint.sh /entrypoint.sh
-
-# Make the script executable
+COPY conf/my.cnf /etc/my.cnf
+COPY tools/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 3306

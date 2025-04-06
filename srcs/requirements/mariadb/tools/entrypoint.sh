@@ -1,40 +1,23 @@
 #!/bin/sh
 
-# Check if the database directory is empty
+# Initialize DB if not already done
 if [ ! -d "/var/lib/mysql/mysql" ]; then
-    echo "Initializing MariaDB data directory..."
-    
-    # Initialize MySQL data directory
+    # Initialize MariaDB data directory
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
-    
-    # Start MariaDB in the background temporarily
-    /usr/bin/mysqld --user=mysql --datadir=/var/lib/mysql --skip-networking &
-    
-    # Wait for MariaDB to start
-    until mysqladmin ping -s; do
-        echo "Waiting for MariaDB to start..."
-        sleep 1
-    done
-    
-    # Configure MariaDB directly (more reliable than using .sql files)
-    mysql -u root << EOF
+
+    # Start MariaDB temporarily
+    /usr/bin/mysqld --user=mysql --bootstrap << EOF
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
 CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 FLUSH PRIVILEGES;
 EOF
-    
-    # Shutdown the temporary MariaDB server
-    mysqladmin -u root shutdown
-    
-    echo "MariaDB data directory initialized!"
-else
-    echo "MariaDB data directory already initialized."
+    echo "Database initialized"
 fi
 
 # Ensure proper permissions
 chown -R mysql:mysql /var/lib/mysql
-chown -R mysql:mysql /run/mysqld
 
-echo "Starting MariaDB server..."
-exec /usr/bin/mysqld --user=mysql --console
+# Start MariaDB
+exec /usr/bin/mysqld --user=mysql
