@@ -2,38 +2,54 @@
 
 echo "MariaDB container starting..."
 
-# Always ensure directories exist with proper permissions
+# Ensure directories exist with proper permissions
 mkdir -p /var/lib/mysql /run/mysqld
 chown -R mysql:mysql /var/lib/mysql /run/mysqld
 chmod 777 /run/mysqld
 
-# Initialize database directory if it doesn't exist
+# Initialize DB if needed
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "Initializing MariaDB data directory..."
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
 fi
 
-# Start MariaDB in the background to configure it
+# Start MariaDB temporarily for setup
 echo "Starting MariaDB for initialization..."
-/usr/bin/mysqld --user=mysql --bootstrap << EOF
--- Create the database
+/usr/bin/mysqld --user=mysql --datadir=/var/lib/mysql --skip-networking &
+pid="$!"
+
+# Wait for MariaDB server to start
+until mysqladmin ping -s 2>/dev/null; do
+    echo "Waiting for MariaDB to be ready..."
+    sleep 1
+done
+echo "MariaDB started for initialization"
+
+# Run setup commands
+mysql -u root << EOF
+-- In case this is a restart, drop and recreate the user to ensure correct permissions
+DROP USER IF EXISTS '${MYSQL_USER}'@'localhost';
+DROP USER IF EXISTS '${MYSQL_USER}'@'%';
+
+-- Create database if it doesn't exist
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
 
--- Create WordPress user with correct host % (not localhost)
-CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+-- Create user with proper access from any host (%)
+CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
 
--- Change root password
+-- Set root password and permissions
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-
--- Make sure changes take effect
 FLUSH PRIVILEGES;
 EOF
 
-echo "Database initialized/updated"
+# Shutdown temporary server
+echo "Shutting down temporary MariaDB server..."
+mysqladmin -u root -p${MYSQL_ROOT_PASSWORD} shutdown
+wait "$pid"
 
-# Ensure proper permissions
-chown -R mysql:mysql /var/lib/mysql
+echo "Database initialized with proper permissions."
 
+# Start the actual MariaDB server
 echo "Starting MariaDB server..."
-exec /usr/bin/mysqld --user=mysql
+exec /usr/bin/mysqld --user=mysql --console
