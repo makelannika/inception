@@ -1,6 +1,8 @@
 DOCKER_COMPOSE = srcs/docker-compose.yml
 VOLUMES = /home/amakela/data
 
+.PHONY: setup build up down logs clean fclean re
+
 all: setup build up
 
 setup:
@@ -41,10 +43,10 @@ logs:
 
 clean: down
 	@docker system prune -af
-	@echo "✅ System pruned"
+	@echo "✅ Cleaned up all Docker resources"
 
 fclean: clean
-	@rm -rf $(VOLUMES)/mariadb/ $(VOLUMES)/wordpress/
+	@sudo rm -rf $(VOLUMES)/mariadb $(VOLUMES)/wordpress
 	@echo "✅ Full cleanup done"
 
 re: fclean all
