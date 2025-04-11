@@ -6,8 +6,8 @@ VOLUMES = /home/amakela/data
 all: setup build up
 
 setup:
-	@mkdir -p $(VOLUMES)/mariadb
-	@mkdir -p $(VOLUMES)/wordpress
+	@mkdir -p $(VOLUMES)/mariadb $(VOLUMES)/wordpress
+	@chmod 777 $(VOLUMES)/mariadb $(VOLUMES)/wordpress
 	@echo "✅ Directories created for persistent storage"
 
 build:

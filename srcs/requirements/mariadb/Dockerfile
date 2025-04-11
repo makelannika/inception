@@ -1,7 +1,9 @@
 FROM alpine:3.20.6
 
 # Install MariaDB
-RUN apk update && apk add --no-cache mariadb mariadb-client
+RUN apk update && apk add --no-cache \
+	mariadb \
+	mariadb-client
 
 # Setup directories and permissions
 RUN mkdir -p /run/mysqld /var/lib/mysql && \
@@ -9,6 +11,8 @@ RUN mkdir -p /run/mysqld /var/lib/mysql && \
 
 # Copy configuration
 COPY conf/my.cnf /etc/my.cnf
+
+# Copy entrypoint script and set permissions
 COPY tools/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

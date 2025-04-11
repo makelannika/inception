@@ -5,11 +5,8 @@ services:
     build: ./requirements/mariadb
     container_name: mariadb
     restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    env_file:
+      - .env
     volumes:
       - mariadb_data:/var/lib/mysql
     networks:
@@ -18,19 +15,15 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 30s
+      retries: 10
+      start_period: 60s
 
   wordpress:
     build: ./requirements/wordpress
     container_name: wordpress
     restart: always
-    environment:
-      - WORDPRESS_DB_HOST=${WORDPRESS_DB_HOST}
-      - WORDPRESS_DB_NAME=${WORDPRESS_DB_NAME}
-      - WORDPRESS_DB_USER=${WORDPRESS_DB_USER}
-      - WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}
-      - DOMAIN_NAME=${DOMAIN_NAME}
+    env_file:
+      - .env
     volumes:
       - wordpress_data:/var/www/html
     networks:
@@ -69,3 +62,4 @@ volumes:
 networks:
   inception_network:
     driver: bridge
+

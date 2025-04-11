@@ -1,71 +1,58 @@
 #!/bin/sh
 
-echo "WordPress container starting..."
-
 # Wait for MariaDB to be ready
-echo "Waiting for MariaDB..."
-while ! nc -z ${WORDPRESS_DB_HOST} 3306; do
+while ! mysql -h${WP_DB_HOST} -u${WP_DB_USER} -p${WP_DB_PASSWORD} -e "SELECT 1" >/dev/null 2>&1; do
     echo "Waiting for MariaDB..."
     sleep 3
 done
-echo "MariaDB is up! Waiting a bit more for initialization..."
-sleep 5  # Give MariaDB a bit more time to initialize fully
+echo "MariaDB is up - configuring WordPress"
 
-# Download WordPress if not already present
-if [ ! -f "/var/www/html/index.php" ]; then
-    echo "WordPress not found, downloading..."
-    curl -o wordpress.tar.gz https://wordpress.org/latest.tar.gz
-    tar -xzf wordpress.tar.gz --strip-components=1
-    rm wordpress.tar.gz
-    
+# Check if WordPress is already configured
+if [ ! -f "/var/www/html/wp-config.php" ]; then
     # Create wp-config.php
-    echo "Creating wp-config.php..."
-    cat > wp-config.php << EOF
-<?php
-define('DB_NAME', '${WORDPRESS_DB_NAME}');
-define('DB_USER', '${WORDPRESS_DB_USER}');
-define('DB_PASSWORD', '${WORDPRESS_DB_PASSWORD}');
-define('DB_HOST', '${WORDPRESS_DB_HOST}:3306');
-define('DB_CHARSET', 'utf8');
-define('DB_COLLATE', '');
-
-\$table_prefix = 'wp_';
-define('WP_DEBUG', false);
-if ( !defined('ABSPATH') )
-    define('ABSPATH', dirname(__FILE__) . '/');
-require_once(ABSPATH . 'wp-settings.php');
-EOF
-    echo "WordPress files prepared."
-fi
-
-# Check if WordPress is already installed
-if ! wp core is-installed --allow-root; then
-    echo "Installing WordPress..."
+    wp config create --allow-root \
+        --dbname="${WP_DB_NAME}" \
+        --dbuser="${WP_DB_USER}" \
+        --dbpass="${WP_DB_PASSWORD}" \
+        --dbhost="${WP_DB_HOST}" \
+	--dbcharset="utf8" \
+	--dbcollate="" \
+        --path="/var/www/html"
     
-    # Install WordPress
-    wp core install \
-        --allow-root \
-        --url=https://${DOMAIN_NAME} \
+    # Install WordPress silently (no installation screen)
+    wp core install --allow-root \
+        --url="${DOMAIN_NAME}" \
         --title="WordPress Site" \
-        --admin_user=amakela \
-        --admin_password=amakela123 \
-        --admin_email=amakela@example.com \
+        --admin_user="${WP_ADMIN_USER}" \
+        --admin_password="${WP_ADMIN_PASSWORD}" \
+        --admin_email="${WP_ADMIN_EMAIL}" \
         --skip-email
     
-    # Create a second non-admin user (requirement from the project)
-    wp user create editor editor@example.com \
-        --allow-root \
-        --role=editor \
-        --user_pass=editor123
+    # Create an additional user
+    wp user create --allow-root \
+        "${WP_USER}" \
+        "${WP_USER_EMAIL}" \
+        --user_pass="${WP_USER_PASSWORD}" \
+        --role=author
     
-    echo "WordPress installed successfully!"
+    # Install a theme
+ #   wp theme install twentytwentyfour --activate --allow-root
+    
+    # Create a sample post
+    wp post create --allow-root \
+        --post_type="post" \
+        --post_title="Welcome to Inception" \
+        --post_content="This is a sample post created automatically during setup." \
+        --post_status="publish"
+    
+    echo "WordPress installation complete!"
 else
-    echo "WordPress already installed."
+    echo "WordPress already configured."
 fi
 
-# Fix permissions
-echo "Setting correct file permissions..."
-chown -R www-data:www-data /var/www/html
+# Ensure correct permissions
+chown -R nobody:nobody /var/www/html
 
+# Start PHP-FPM
 echo "Starting PHP-FPM..."
-exec php-fpm -F
+exec php-fpm82 -F
