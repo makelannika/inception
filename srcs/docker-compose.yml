@@ -12,11 +12,12 @@ services:
     networks:
       - inception_network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      #test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--silent"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "--silent"]
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 60s
+      start_period: 30s
 
   wordpress:
     build: ./requirements/wordpress

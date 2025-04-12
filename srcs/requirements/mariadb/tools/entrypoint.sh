@@ -21,7 +21,7 @@ FLUSH PRIVILEGES;
 EOF
 
     echo "Shutting down temporary MariaDB server..."
-    mysqladmin -u root shutdown
+    mysqladmin -u root -p${MYSQL_ROOT_PASSWORD} shutdown
 
     echo "Database initialized with proper permissions."
 fi

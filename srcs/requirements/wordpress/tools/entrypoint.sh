@@ -1,14 +1,20 @@
 #!/bin/sh
 
-# Wait for MariaDB to be ready
+# Initial delay to ensure MariaDB has fully initialized
+sleep 5
+
+# Then proceed with the connection check, but with the improved check method
+echo "Checking if MariaDB is up..."
 while ! mysql -h${WP_DB_HOST} -u${WP_DB_USER} -p${WP_DB_PASSWORD} -e "SELECT 1" >/dev/null 2>&1; do
     echo "Waiting for MariaDB..."
     sleep 3
 done
-echo "MariaDB is up - configuring WordPress"
+
+echo "MariaDB ready"
 
 # Check if WordPress is already configured
 if [ ! -f "/var/www/html/wp-config.php" ]; then
+
     # Create wp-config.php
     wp config create --allow-root \
         --dbname="${WP_DB_NAME}" \
@@ -19,7 +25,7 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
 	--dbcollate="" \
         --path="/var/www/html"
     
-    # Install WordPress silently (no installation screen)
+    # Install WordPress silently - no installation screen
     wp core install --allow-root \
         --url="${DOMAIN_NAME}" \
         --title="WordPress Site" \
@@ -34,16 +40,6 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
         "${WP_USER_EMAIL}" \
         --user_pass="${WP_USER_PASSWORD}" \
         --role=author
-    
-    # Install a theme
- #   wp theme install twentytwentyfour --activate --allow-root
-    
-    # Create a sample post
-    wp post create --allow-root \
-        --post_type="post" \
-        --post_title="Welcome to Inception" \
-        --post_content="This is a sample post created automatically during setup." \
-        --post_status="publish"
     
     echo "WordPress installation complete!"
 else
