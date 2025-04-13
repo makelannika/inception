@@ -1,16 +1,12 @@
 #!/bin/sh
 
-# Initial delay to ensure MariaDB has fully initialized
-sleep 5
-
-# Then proceed with the connection check, but with the improved check method
 echo "Checking if MariaDB is up..."
 while ! mysql -h${WP_DB_HOST} -u${WP_DB_USER} -p${WP_DB_PASSWORD} -e "SELECT 1" >/dev/null 2>&1; do
     echo "Waiting for MariaDB..."
     sleep 3
 done
 
-echo "MariaDB ready"
+echo "MariaDB is ready"
 
 # Check if WordPress is already configured
 if [ ! -f "/var/www/html/wp-config.php" ]; then
